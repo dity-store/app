@@ -8,7 +8,26 @@
   <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=15KmcbAVdcePYAeFcDenZMn0Cz-2noT7e&sz=w32">
   
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #f8fafc; }
+    /* PROTEKSI CSS */
+    body, html { 
+      margin: 0; 
+      padding: 0; 
+      height: 100%; 
+      overflow: hidden; 
+      background-color: #f8fafc; 
+      
+      /* Mencegah teks/elemen diblok atau diseleksi */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      
+      /* Mencegah menu pop-up bawaan iOS saat tekan lama */
+      -webkit-touch-callout: none;
+      
+      /* Menghilangkan efek highlight biru saat tap di mobile */
+      -webkit-tap-highlight-color: transparent;
+    }
     
     .app-container {
       position: relative;
@@ -31,5 +50,44 @@
   <div class="app-container">
     <iframe src="https://script.google.com/macros/s/AKfycbwtvs4tVxdaNYblupCldiKYiDG7C-vwIl2fEFSMt0-MdgGMQnOuONZrJBIuX3fj08FQtA/exec"></iframe>
   </div>
+
+  <!-- PROTEKSI JAVASCRIPT -->
+  <script>
+    // 1. Anti-Iframe: Mencegah web ini ditampilkan di iframe web orang lain (Clickjacking Protection)
+    if (window.top !== window.self) {
+        window.top.location = window.self.location;
+    }
+
+    // 2. Blokir Klik Kanan (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    // 3. Blokir Drag & Drop
+    document.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+    });
+
+    // 4. Blokir Shortcut Keyboard Berbahaya
+    document.addEventListener('keydown', function(e) {
+      // Blokir F12 (Inspect Element)
+      if (e.keyCode === 123 || e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Blokir Ctrl+Shift+I / J / C (Developer Tools)
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Blokir Ctrl+U (View Source), Ctrl+S (Save), Ctrl+P (Print)
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p')) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  </script>
 </body>
 </html>
