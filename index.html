@@ -48,41 +48,51 @@
 </head>
 <body>
   <div class="app-container">
-    <iframe src="https://script.google.com/macros/s/AKfycbwtvs4tVxdaNYblupCldiKYiDG7C-vwIl2fEFSMt0-MdgGMQnOuONZrJBIuX3fj08FQtA/exec"></iframe>
+    <!-- Kosongkan src dan tambahkan ID agar bisa diisi oleh Javascript -->
+    <iframe id="dityFrame" src=""></iframe>
   </div>
 
-  <!-- PROTEKSI JAVASCRIPT -->
+  <!-- SCRIPT PENERUS URL & PROTEKSI -->
   <script>
-    // 1. Anti-Iframe: Mencegah web ini ditampilkan di iframe web orang lain (Clickjacking Protection)
+    // 1. TANGKAP PARAMETER URL (Contoh: ?session=xxx&path=detil_xxx)
+    const urlParams = window.location.search;
+    
+    // 2. TEMPELKAN KE IFRAME GOOGLE APPS SCRIPT
+    const gasAppUrl = "https://script.google.com/macros/s/AKfycbwtvs4tVxdaNYblupCldiKYiDG7C-vwIl2fEFSMt0-MdgGMQnOuONZrJBIuX3fj08FQtA/exec";
+    document.getElementById('dityFrame').src = gasAppUrl + urlParams;
+
+    // 3. BERSIHKAN URL BROWSER AGAR RAPI (Menyembunyikan token dari address bar)
+    if (urlParams) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // --- PROTEKSI JAVASCRIPT BAWAAN ---
+    
+    // Anti-Iframe: Mencegah web ini ditampilkan di iframe web orang lain (Clickjacking Protection)
     if (window.top !== window.self) {
         window.top.location = window.self.location;
     }
 
-    // 2. Blokir Klik Kanan (Context Menu)
+    // Blokir Klik Kanan (Context Menu)
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
     });
 
-    // 3. Blokir Drag & Drop
+    // Blokir Drag & Drop
     document.addEventListener('dragstart', function(e) {
       e.preventDefault();
     });
 
-    // 4. Blokir Shortcut Keyboard Berbahaya
+    // Blokir Shortcut Keyboard Berbahaya
     document.addEventListener('keydown', function(e) {
-      // Blokir F12 (Inspect Element)
       if (e.keyCode === 123 || e.key === 'F12') {
         e.preventDefault();
         return false;
       }
-      
-      // Blokir Ctrl+Shift+I / J / C (Developer Tools)
       if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
         e.preventDefault();
         return false;
       }
-      
-      // Blokir Ctrl+U (View Source), Ctrl+S (Save), Ctrl+P (Print)
       if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p')) {
         e.preventDefault();
         return false;
