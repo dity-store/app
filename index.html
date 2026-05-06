@@ -8,102 +8,55 @@
   <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=15KmcbAVdcePYAeFcDenZMn0Cz-2noT7e&sz=w32">
   
   <style>
-    /* PROTEKSI CSS */
     body, html { 
-      margin: 0; 
-      padding: 0; 
-      height: 100%; 
-      overflow: hidden; 
-      background-color: #f8fafc; 
-      
-      /* Mencegah teks/elemen diblok atau diseleksi */
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      
-      /* Mencegah menu pop-up bawaan iOS saat tekan lama */
-      -webkit-touch-callout: none;
-      
-      /* Menghilangkan efek highlight biru saat tap di mobile */
-      -webkit-tap-highlight-color: transparent;
+      margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #f8fafc; 
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
     }
-    
-    .app-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    iframe {
-      position: absolute;
-      top: 0; 
-      left: 0;
-      width: 100%;
-      height: calc(100% + 46px);
-      border: none;
-    }
+    .app-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% + 46px); border: none; }
   </style>
 </head>
 <body>
   <div class="app-container">
-    <!-- Kosongkan src dan tambahkan ID agar bisa diisi oleh Javascript -->
     <iframe id="dityFrame" src=""></iframe>
   </div>
 
-  <!-- SCRIPT PENERUS URL & PROTEKSI -->
   <script>
-    // 1. TANGKAP PARAMETER URL (Contoh: ?session=xxx&path=detil_xxx)
-    const urlParams = window.location.search;
     const gasAppUrl = "https://script.google.com/macros/s/AKfycbwtvs4tVxdaNYblupCldiKYiDG7C-vwIl2fEFSMt0-MdgGMQnOuONZrJBIuX3fj08FQtA/exec";
     
-    // Meneruskan parameter (code & state) ke Iframe GAS
-    document.getElementById('dityFrame').src = gasAppUrl + urlParams;
+    // 1. TANGKAP URL DARI GOOGLE
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    // 2. FILTER PARAMETER (Buang 'authuser' yang menyebabkan error Google Drive)
+    let cleanQuery = "";
+    if (code) {
+      cleanQuery = "?code=" + encodeURIComponent(code);
+      if (state) {
+        cleanQuery += "&state=" + encodeURIComponent(state);
+      }
+    }
 
-    // Mendengarkan perintah dari Iframe GAS untuk membersihkan URL
+    // 3. MASUKKAN KE IFRAME (Hanya membawa parameter yang bersih)
+    document.getElementById('dityFrame').src = gasAppUrl + cleanQuery;
+
+    // 4. PEMBERSIH ADDRESS BAR (Mendengarkan sinyal dari Apps Script)
     window.addEventListener('message', function(event) {
-        // Keamanan opsional: pastikan origin dari script.google.com (diabaikan sementara untuk kelancaran)
         if (event.data === 'clean_url') {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     });
 
-    if (window.top !== window.self) { window.top.location = window.self.location; }
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
-
     // --- PROTEKSI JAVASCRIPT BAWAAN ---
-    
-    // Anti-Iframe: Mencegah web ini ditampilkan di iframe web orang lain (Clickjacking Protection)
-    if (window.top !== window.self) {
-        window.top.location = window.self.location;
-    }
-
-    // Blokir Klik Kanan (Context Menu)
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-    });
-
-    // Blokir Drag & Drop
-    document.addEventListener('dragstart', function(e) {
-      e.preventDefault();
-    });
-
-    // Blokir Shortcut Keyboard Berbahaya
+    if (window.top !== window.self) { window.top.location = window.self.location; }
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    document.addEventListener('dragstart', function(e) { e.preventDefault(); });
     document.addEventListener('keydown', function(e) {
-      if (e.keyCode === 123 || e.key === 'F12') {
-        e.preventDefault();
-        return false;
-      }
-      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-        e.preventDefault();
-        return false;
-      }
-      if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p')) {
-        e.preventDefault();
-        return false;
-      }
+      if (e.keyCode === 123 || e.key === 'F12') { e.preventDefault(); return false; }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p')) { e.preventDefault(); return false; }
     });
   </script>
 </body>
