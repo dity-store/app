@@ -56,15 +56,22 @@
   <script>
     // 1. TANGKAP PARAMETER URL (Contoh: ?session=xxx&path=detil_xxx)
     const urlParams = window.location.search;
-    
-    // 2. TEMPELKAN KE IFRAME GOOGLE APPS SCRIPT
     const gasAppUrl = "https://script.google.com/macros/s/AKfycbwtvs4tVxdaNYblupCldiKYiDG7C-vwIl2fEFSMt0-MdgGMQnOuONZrJBIuX3fj08FQtA/exec";
+    
+    // Meneruskan parameter (code & state) ke Iframe GAS
     document.getElementById('dityFrame').src = gasAppUrl + urlParams;
 
-    // 3. BERSIHKAN URL BROWSER AGAR RAPI (Menyembunyikan token dari address bar)
-    if (urlParams) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+    // Mendengarkan perintah dari Iframe GAS untuk membersihkan URL
+    window.addEventListener('message', function(event) {
+        // Keamanan opsional: pastikan origin dari script.google.com (diabaikan sementara untuk kelancaran)
+        if (event.data === 'clean_url') {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+
+    if (window.top !== window.self) { window.top.location = window.self.location; }
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
 
     // --- PROTEKSI JAVASCRIPT BAWAAN ---
     
